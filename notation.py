@@ -24,6 +24,7 @@ class Notation:
         self.fig, self.next_fig = rook, king
 
     def __parse(self, move):
+        print(move)
         move = move.split("+")[0].split("#")[0]
         if 'O' in move:
             self.__castling(move)

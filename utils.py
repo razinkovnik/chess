@@ -12,17 +12,9 @@ def num2pos(i):
     return f"{'abcdefgh'[col]}{row+1}"
 
 
-def translate_notation(enemy_move):
-    if enemy_move[0] == "К":
-        if enemy_move[1] == "р":
-            return "K" + enemy_move[1:]
-        return "N" + enemy_move[1:]
-    if enemy_move[0] == "Ф":
-        return "Q" + enemy_move[1:]
-    if enemy_move[0] == "С":
-        return "B" + enemy_move[1:]
-    if enemy_move[0] == "С":
-        return "B" + enemy_move[1:]
-    if enemy_move[0] == "Л":
-        return "R" + enemy_move[1:]
-    return enemy_move
+def translate_notation(move):
+    move = move.replace('Кр', 'K')
+    move = move.replace('Ф', 'Q')
+    move = move.replace('Л', 'R')
+    move = move.replace('С', 'B')
+    return move.replace('К', 'N')
