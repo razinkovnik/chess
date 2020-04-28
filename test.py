@@ -1,4 +1,4 @@
-from networks import SimpleLinear, SimpleConv2d
+from networks import SimpleLinear, SimpleConv2d, ConvEncoderDecoder
 from game_analysis import *
 from notation import Notation
 
@@ -8,7 +8,7 @@ def go(move):
     game.board.show()
 
 
-model = SimpleConv2d()
+model = ConvEncoderDecoder()
 model.cuda()
 move_count = 0
 
@@ -17,7 +17,7 @@ board = Board()
 game = Game(model)
 game.board = board
 go("e4")
-next_state = game.show()
+game.show()
 
 # while True:
 #     time.sleep(1)

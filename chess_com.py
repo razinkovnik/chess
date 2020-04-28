@@ -8,7 +8,7 @@ from selenium.common.exceptions import StaleElementReferenceException
 from board import Board
 from utils import translate_notation
 
-from networks import SimpleLinear, SimpleConv2d
+from networks import SimpleLinear, SimpleConv2d, ConvEncoderDecoder
 from game_analysis import *
 
 
@@ -19,7 +19,7 @@ class ChessCom:
         self.driver.implicitly_wait(1)
         self.board = Board()
         # model = SimpleLeaner()
-        model = SimpleConv2d()
+        model = ConvEncoderDecoder()
         model.load()
         self.game = Game(model)
 

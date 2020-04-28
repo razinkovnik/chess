@@ -4,7 +4,7 @@ from tqdm import tqdm
 # from IPython.display import clear_output
 import matplotlib.pyplot as plt
 
-from networks import SimpleLinear, SimpleConv2d
+from networks import SimpleLinear, SimpleConv2d, ConvEncoderDecoder
 from utils import *
 
 from data import train_iter
@@ -13,7 +13,8 @@ device = torch.device("cuda")
 
 # Тренируем
 # model = SimpleLinear()
-model = SimpleConv2d()
+model = ConvEncoderDecoder()
+# model.load()
 model.to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
@@ -29,11 +30,9 @@ for batch in tqdm(train_iter):
     optimizer.zero_grad()
     i += 1
     losses += [loss.detach().item()]
-    if i % 10 == 0:
-        # clear_output(wait=True)
-        plt.plot(losses)
-        plt.title("Training loss")
-        plt.xlabel("Batch")
-        plt.ylabel("Loss")
-        plt.show()
+plt.plot(losses)
+plt.title("Training loss")
+plt.xlabel("Batch")
+plt.ylabel("Loss")
+plt.show()
 model.save()

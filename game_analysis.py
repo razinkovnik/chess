@@ -19,7 +19,7 @@ class GameAnalysis:
             lst = cur[i * 64:(i + 1) * 64].tolist()
             self.cur_positions[fig] = [num2pos(i) for i, x in enumerate(lst) if x < 0]
 
-        self.board_out = self.model(cur).tolist()
+        self.board_out = self.model(cur.unsqueeze(0)).tolist()
         for i, fig in enumerate(figs):
             lst = self.board_out[i * 64:(i + 1) * 64]
             self.next_positions[fig] = {}
@@ -311,7 +311,8 @@ class Game:
         positions = []
         for pos in self.predict_next_positions(fig, cur_pos):
             positions += [(pos, self.game_anal.board_out[pos2num(pos)])]
-        if len(positions) == 0: return None, None, None, 0
+        if len(positions) == 0:
+            return None, None, None, 0
         next_pos_prediction = min(positions, key=lambda a: a[1])
         next_pos, next_prob = next_pos_prediction[0], -next_pos_prediction[1]
         return fig, cur_pos, next_pos, cur_prob * next_prob
