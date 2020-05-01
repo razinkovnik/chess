@@ -4,7 +4,7 @@ from tqdm import tqdm
 # from IPython.display import clear_output
 import matplotlib.pyplot as plt
 
-from networks import SimpleLinear, SimpleConv2d, ConvEncoderDecoder
+from networks import Model
 from utils import *
 
 from data import train_iter
@@ -13,8 +13,8 @@ device = torch.device("cuda")
 
 # Тренируем
 # model = SimpleLinear()
-model = ConvEncoderDecoder()
-# model.load()
+model = Model()
+model.load()
 model.to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 

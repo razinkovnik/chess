@@ -94,3 +94,29 @@ class ConvEncoderDecoder(Base):
             return loss, out
         else:
             return reshape(out, [-1])
+
+
+class Model(Base):
+    def __init__(self):
+        super().__init__()
+        self.conv = nn.Conv2d(6, 1, 1)
+        self.encoder = nn.Linear(1*8*8, 16)
+        self.decoder = nn.Linear(16, 64)
+        self.relu = nn.ReLU()
+        self.loss = nn.CrossEntropyLoss()
+
+    def forward(self, x, target=None):
+        x = reshape(x, [-1, 6, 8, 8])
+        x = self.conv(x)
+        x = reshape(x, [-1, 1*8*8])
+        x = self.encoder(x)
+        x = self.decoder(x)
+        y1 = self.relu(x)
+        y2 = self.relu(-x)
+        if target is not None:
+            pos_from, pos_to = target.t()
+            l1 = self.loss(y1, pos_from)
+            l2 = self.loss(y2, pos_to)
+            return l1 + l2, y1, y2
+        else:
+            return reshape(y1, [-1]), reshape(y2, [-1])

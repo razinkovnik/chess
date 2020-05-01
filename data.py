@@ -24,7 +24,7 @@ class MyDataset(Dataset):
     def __getitem__(self, index):
         cur = MyDataset.__row2board(self.df['0'].iloc[index])
         nxt = MyDataset.__row2board(self.df['1'].iloc[index])
-        return torch.tensor([cur], dtype=torch.float), torch.tensor([nxt], dtype=torch.float)
+        return torch.tensor([cur], dtype=torch.float), torch.tensor([nxt], dtype=torch.long)
 
 
 Batch = namedtuple(

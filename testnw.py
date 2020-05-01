@@ -2,12 +2,14 @@ import torch
 from torch import nn, reshape
 from utils import root_folder
 from board import Board
-from networks import ConvEncoderDecoder
+from networks import Model
+from notation import Notation
+from utils import *
+from data import train_iter
 
-board = Board()
+batch = next(iter(train_iter))
+inputs, targets = batch
+x, target = inputs[0].unsqueeze(0), targets[0].unsqueeze(0)
 
-x = board.to_vector()
-x = torch.tensor(x, dtype=torch.float).unsqueeze(0)
-model = ConvEncoderDecoder()
-print(x)
-print(model(x))
+model = Model().cuda()
+y = model(x, target)

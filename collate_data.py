@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 from board import Board
 from notation import Notation
-from utils import root_folder
+from utils import *
 
 # Собрать вектор доски и последующий ход в словарь
 gamedata = pd.read_csv(f'{root_folder}/games.csv')
@@ -24,8 +24,14 @@ for moves in tqdm(gamedata.moves):
         if i % 2 == 0:
             last_board = board_vector
         else:
+            pos_from, pos_to = notation.pos_from, notation.pos_to
+            if "O-O-O" in move:
+                pos_from, pos_to = "e8", "c8"
+            elif "O-O" in move:
+                pos_from, pos_to = "e8", "g8"
+            pos_from, pos_to = pos2num(pos_from), pos2num(pos_to)
             # noinspection PyUnboundLocalVariable
-            boards += [[last_board, board_vector]]
+            boards += [[last_board, f"{pos_from} {pos_to}"]]
 df = pd.DataFrame(boards)
-df.drop_duplicates()
+# df.drop_duplicates()
 df.to_csv(f'{root_folder}/boardmoves.csv')
