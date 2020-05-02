@@ -9,7 +9,7 @@ from board import Board
 from utils import translate_notation
 
 from networks import SimpleLinear, SimpleConv2d, ConvEncoderDecoder
-from game_analysis import *
+from game import *
 
 
 class ChessCom:
@@ -18,10 +18,6 @@ class ChessCom:
         self.driver.get("https://www.chess.com/play/computer")
         self.driver.implicitly_wait(1)
         self.board = Board()
-        # model = SimpleLeaner()
-        model = ConvEncoderDecoder()
-        model.load()
-        self.game = Game(model)
 
     @staticmethod
     def __init_driver():
@@ -48,7 +44,6 @@ class ChessCom:
         self.board = Board()
         for step_num, move in enumerate(moves):
             self.__go(step_num % 2, move)
-        self.game.board = self.board
 
     def __go(self, color, move):
         return self.board.play(Notation(self.board, color, move))
@@ -67,20 +62,4 @@ class ChessCom:
     def move(self, pos_from, pos_to):
         self.__cell(pos_from)
         self.__cell(pos_to)
-
-    # def predict_update(self):
-    #     self.game.board = self.board
-    #     next_move = self.game.predict()
-    #     if not next_move:
-    #         print("game end")
-    #         return
-    #     fig, pos_from, pos_to, prob = next_move
-    #     if fig == "O-O":
-    #         pos_from, pos_to = "e8", "g8"
-    #     elif fig == "O-O-O":
-    #         pos_from, pos_to = "e8", "c8"
-    #     print(f"{fig} {pos_from}-{pos_to}, prob = {prob}")
-    #     self.move(pos_from, pos_to)
-    #     time.sleep(1)
-    #     self.update_board()
 

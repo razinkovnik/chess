@@ -1,24 +1,32 @@
-from networks import SimpleLinear, SimpleConv2d, ConvEncoderDecoder
-from game_analysis import *
+from networks import Model
+from game import *
 from notation import Notation
 
 
 def go(move):
-    game.board.play(Notation(game.board, 0, move))
-    game.board.show()
+    board.play(Notation(board, 0, move))
+    board.show()
 
 
-model = ConvEncoderDecoder()
+model = Model()
+model.load()
 model.cuda()
 move_count = 0
 
 board = Board()
 
-game = Game(model)
-game.board = board
 go("e4")
-game.show()
 
+# predict
+game = Game(model)
+
+
+def show():
+    next_move = game.predict(board)
+    print(next_move)
+    fig, pos_from, pos_to, prob = next_move
+    board.move(fig, pos_from, pos_to)
+    board.show()
 # while True:
 #     time.sleep(1)
 #     moves = chess.read_moves()

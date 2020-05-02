@@ -117,6 +117,8 @@ class Model(Base):
             pos_from, pos_to = target.t()
             l1 = self.loss(y1, pos_from)
             l2 = self.loss(y2, pos_to)
-            return l1 + l2, y1, y2
+            return l1 + l2
         else:
+            y1 = nn.functional.softmax(y1, 1)
+            y2 = nn.functional.softmax(y2, 1)
             return reshape(y1, [-1]), reshape(y2, [-1])

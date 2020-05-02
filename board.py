@@ -165,6 +165,11 @@ class Board:
                 return False
         return True
 
+    def what_is(self, pos):
+        for k in self.chess.keys():
+            if pos in self.chess[k]:
+                return k
+
     def play(self, notation):
         if notation.castling:
             self.move(notation.fig, notation.castling[0][0], notation.castling[0][1])

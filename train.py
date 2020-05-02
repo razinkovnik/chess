@@ -23,7 +23,7 @@ model.train()
 losses = []
 i = 0
 for batch in tqdm(train_iter):
-    loss = model(batch.cur, batch.nxt)[0]
+    loss = model(batch.cur, batch.nxt)
     loss.backward()
     torch.nn.utils.clip_grad_norm_(model.parameters(), max_grad_norm)
     optimizer.step()
