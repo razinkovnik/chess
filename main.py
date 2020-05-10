@@ -1,7 +1,7 @@
 import time
 
 from chess_com import ChessCom
-from networks import Model
+from networks import Model2
 from game import Game
 
 chess = ChessCom()
@@ -9,7 +9,7 @@ time.sleep(3)
 chess.flip_board()
 move_count = 0
 
-model = Model()
+model = Model2()
 model.load()
 model.cuda()
 model.eval()

@@ -4,18 +4,15 @@ from tqdm import tqdm
 # from IPython.display import clear_output
 import matplotlib.pyplot as plt
 
-from networks import Model
+from networks import Model2
 from utils import *
 
 from data import train_iter
 
-device = torch.device("cuda")
-
 # Тренируем
-# model = SimpleLinear()
-model = Model()
+model = Model2()
 model.load()
-model.to(device)
+model.cuda()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 max_grad_norm = 1.0

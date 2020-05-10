@@ -19,83 +19,6 @@ class Base(nn.Module):
         torch.save(self.state_dict(), f'{root_folder}/{self.name}.model')
 
 
-# Примитивная нейронка
-class SimpleLinear(Base):
-    def __init__(self):
-        super().__init__()
-        self.linear1 = nn.Linear(64 * 6, 64)
-        self.linear2 = nn.Linear(64, 64 * 6)
-        self.tanh = nn.Tanh()
-        self.loss = nn.MSELoss(reduction="sum")
-        self.name = "simple"
-
-    def forward(self, x, target=None):
-        x = self.tanh(self.linear1(x))
-        out = self.tanh(self.linear2(x))
-        if target is not None:
-            loss = self.loss(out, target)
-            return loss, out
-        else:
-            return out
-
-
-class SimpleConv2d(Base):
-    def __init__(self):
-        super().__init__()
-        self.conv = nn.Conv2d(6, 64, 3)
-        self.pool = nn.MaxPool2d(2)
-        self.linear = nn.Linear(576, 64*6)
-        self.tanh = nn.Tanh()
-        self.loss = nn.MSELoss(reduction="sum")
-        self.name = "conv"
-
-    def forward(self, x, target=None):
-        x = reshape(x, [-1, 6, 8, 8])
-        x = self.conv(x)
-        x = self.pool(x)
-        x = reshape(x, [-1, 576])
-        x = self.linear(x)
-        out = self.tanh(x)
-        if target is not None:
-            loss = self.loss(out, target)
-            return loss, out
-        else:
-            return reshape(out, [-1])
-
-
-class ConvEncoderDecoder(Base):
-    def __init__(self):
-        super().__init__()
-        n_chanel_in = 1
-        n_chanel_out = 64
-        self.conv1 = nn.Conv2d(6, n_chanel_in, 1)
-        self.conv2 = nn.Conv2d(n_chanel_in, n_chanel_out, 3, padding=1)
-        self.conv3 = nn.Conv2d(n_chanel_out, n_chanel_out, 3)
-        self.pool = nn.MaxPool2d(2)
-        self.linear = nn.Linear(n_chanel_out, n_chanel_out * 4)
-        self.decoder = nn.Linear(n_chanel_out*4, 64 * 6)
-        self.tanh = nn.Tanh()
-        self.loss = nn.MSELoss(reduction="sum")
-        self.name = "convende"
-
-    def forward(self, x, target=None):
-        y = reshape(x, [-1, 6, 8, 8])
-        y = self.conv1(y)
-        y = y + self.conv2(y)
-        y = self.pool(y)
-        y = self.conv3(y)
-        y = self.pool(y)
-        y = reshape(y, [x.shape[0], -1])
-        y = self.tanh(self.linear(y))
-        out = self.tanh(self.decoder(y))
-        # out = x + y
-        if target is not None:
-            loss = self.loss(out, target)
-            return loss, out
-        else:
-            return reshape(out, [-1])
-
-
 class Model(Base):
     def __init__(self):
         super().__init__()
@@ -111,6 +34,48 @@ class Model(Base):
         x = reshape(x, [-1, 1*8*8])
         x = self.encoder(x)
         x = self.decoder(x)
+        y1 = self.relu(x)
+        y2 = self.relu(-x)
+        if target is not None:
+            pos_from, pos_to = target.t()
+            l1 = self.loss(y1, pos_from)
+            l2 = self.loss(y2, pos_to)
+            return l1 + l2
+        else:
+            y1 = nn.functional.softmax(y1, 1)
+            y2 = nn.functional.softmax(y2, 1)
+            return reshape(y1, [-1]), reshape(y2, [-1])
+
+
+class Model2(Base):
+    def __init__(self):
+        super().__init__()
+        self.conv = nn.Conv2d(6, 1, 1)
+        self.conv2 = nn.Conv2d(1, 8, 2)
+        self.conv3 = nn.Conv2d(8, 16, 3)
+        self.linear1 = nn.Linear(16*5*5, 1024)
+        # self.linear2 = nn.Linear(1024, 256)
+        self.output = nn.Linear(1024, 64)
+        self.relu = nn.ReLU()
+        # self.tanh = nn.Tanh()
+        self.loss = nn.CrossEntropyLoss()
+        self.dropout1 = nn.Dropout(0.5)
+        # self.dropout2 = nn.Dropout(0.2)
+
+    def forward(self, x, target=None):
+        x = reshape(x, [-1, 6, 8, 8])
+        x = self.conv(x)
+        x = self.conv2(x)
+        x = self.conv3(x)
+        x = reshape(x, [-1, 16*5*5])
+        x = self.linear1(x)
+        x = self.dropout1(x)
+        x = self.relu(x)
+        # x = self.linear2(x)
+        # x = self.dropout2(x)
+        # x = self.relu(x)
+        x = self.output(x)
+        # x = self.dropout(x)
         y1 = self.relu(x)
         y2 = self.relu(-x)
         if target is not None:

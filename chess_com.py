@@ -8,9 +8,6 @@ from selenium.common.exceptions import StaleElementReferenceException
 from board import Board
 from utils import translate_notation
 
-from networks import SimpleLinear, SimpleConv2d, ConvEncoderDecoder
-from game import *
-
 
 class ChessCom:
     def __init__(self):

@@ -1,15 +1,19 @@
-import torch
-from torch import nn, reshape
-from utils import root_folder
-from board import Board
-from networks import Model
-from notation import Notation
-from utils import *
 from data import train_iter
+from board import Board
+from score import total_score
 
 batch = next(iter(train_iter))
 inputs, targets = batch
-x, target = inputs[0].unsqueeze(0), targets[0].unsqueeze(0)
+n = 135
+state = [int(x) for x in inputs[n].tolist()]
+x, target = inputs[n].unsqueeze(0), targets[0].unsqueeze(0)
+board = Board()
+board.from_state(state)
+board.show()
 
-model = Model().cuda()
-y = model(x, target)
+
+# SCORE
+w_score = total_score(board)
+
+
+print("total_score", total_score(board))
