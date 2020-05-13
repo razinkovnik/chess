@@ -28,6 +28,11 @@ class Board:
         for fig in self.chess.keys():
             self.figs[fig] = Image.open(f'{root_folder}/{fig}.png', 'r').convert('RGBA')
 
+    def clone(self):
+        board = Board()
+        board.from_state(self.to_vector())
+        return board
+
     def __setup_board(self):
         w = self.w
         board = Image.new('RGBA', (w * 8, w * 8))
@@ -69,7 +74,9 @@ class Board:
 
     def move(self, fig, pos_from, pos_to):
         self.remove(pos_from)
+        self.remove(pos_to)
         self.add(fig, pos_to)
+        return self
 
     def find_pawn_position(self, fig, pos_to):
         color = 0 if fig[0] == "w" else 1

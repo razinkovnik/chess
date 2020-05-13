@@ -11,17 +11,11 @@ device = torch.device("cuda")
 class Game:
     def __init__(self, model):
         self.model = model
-        self.figs = {
-            "pawn": "bp",
-            "knight": "bn",
-            "bishop": "bb",
-            "rook": "br",
-            "queen": "bq",
-            "king": "bk"
-        }
         self.move_throw_attacked_field = None
         self.can_castling = (True, True)  # O-O, O-O-O
         self.board = None
+        self.color = "w"
+        self.opp_color = "b"
 
     def predict(self, board):
         self.board = board
@@ -86,7 +80,7 @@ class Game:
 
     def filter_knight_move(self, next_positions):
         black = reduce(lambda a, b: a + b,
-                       [self.board.chess[k] for k in [k for k in self.board.chess.keys() if k[0] == 'b']])
+                       [self.board.chess[k] for k in [k for k in self.board.chess.keys() if k[0] == self.color]])
         return list(filter(lambda pos: pos not in black, next_positions))
 
     def filter_pawn_move(self, cur_pos, next_positions):
@@ -94,54 +88,55 @@ class Game:
 
     def filter_bishop_move(self, cur_pos, next_positions):
         return list(filter(
-            lambda next_pos: self.board.is_clear_field(next_pos, "w") and self.board.is_clear_diagonal(cur_pos,
-                                                                                                       next_pos),
-            next_positions))
+            lambda next_pos: self.board.is_clear_field(next_pos, self.opp_color) and self.board.is_clear_diagonal(cur_pos, next_pos), next_positions))
 
     def filter_rook_move(self, cur_pos, next_positions):
         return list(filter(
-            lambda next_pos: self.board.is_clear_field(next_pos, "w") and self.board.is_clear_line(cur_pos, next_pos),
+            lambda next_pos: self.board.is_clear_field(next_pos, self.opp_color) and self.board.is_clear_line(cur_pos, next_pos),
             next_positions))
 
     def filter_queen_move(self, cur_pos, next_positions):
         return self.filter_bishop_move(cur_pos, next_positions) + self.filter_rook_move(cur_pos, next_positions)
 
     def filter_king_move(self, next_positions):
-        return list(filter(lambda next_pos: self.board.is_clear_field(next_pos, "w"), next_positions))
+        return list(filter(lambda next_pos: self.board.is_clear_field(next_pos, self.opp_color), next_positions))
 
     def test_check(self, fig, pos_from, pos):
         state = self.board.to_vector()
         self.board.remove(pos_from)
         self.board.remove(pos)
         self.board.chess[fig] += [pos]
-        king_pos = self.board.chess["bk"][0]
-        for pos in self.board.chess["wp"]:
-            positions = ga.white_pawn_attack_variants(pos)
+        king_pos = self.board.chess[self.color+"k"][0]
+        for pos in self.board.chess[self.opp_color+"p"]:
+            if self.opp_color == "w":
+                positions = ga.white_pawn_move_variants(pos)
+            else:
+                positions = ga.black_pawn_move_variants(pos)
             if king_pos in positions:
                 self.board.from_state(state)
                 return True
-        for pos in self.board.chess["wr"]:
+        for pos in self.board.chess[self.opp_color+"r"]:
             positions = ga.rook_move_variants(pos)
             if king_pos in positions and self.board.is_clear_line(king_pos, pos):
                 self.board.from_state(state)
                 return True
-        for pos in self.board.chess["wn"]:
+        for pos in self.board.chess[self.opp_color+"n"]:
             positions = ga.knight_move_variants(pos)
             if king_pos in positions:
                 self.board.from_state(state)
                 return True
-        for pos in self.board.chess["wb"]:
+        for pos in self.board.chess[self.opp_color+"b"]:
             positions = ga.bishop_move_variants(pos)
             if king_pos in positions and self.board.is_clear_diagonal(king_pos, pos):
                 self.board.from_state(state)
                 return True
-        for pos in self.board.chess["wq"]:
+        for pos in self.board.chess[self.opp_color+"q"]:
             positions = ga.queen_move_variants(pos)
             if king_pos in positions and (
                     self.board.is_clear_diagonal(king_pos, pos) or self.board.is_clear_line(king_pos, pos)):
                 self.board.from_state(state)
                 return True
-        for pos in self.board.chess["wk"]:
+        for pos in self.board.chess[self.opp_color+"k"]:
             positions = ga.king_move_variants(pos)
             if king_pos in positions:
                 self.board.from_state(state)
@@ -156,7 +151,7 @@ class Game:
             next_field = f"{pos_from[0]}{int(pos_from[1]) + 1}"
             return self.board.is_clear_field(next_field)
         else:
-            return self.move_throw_attacked_field == pos_to or not self.board.is_clear_field(pos_to, "b")
+            return self.move_throw_attacked_field == pos_to or not self.board.is_clear_field(pos_to, self.color)
 
     def predict_next_pos(self, fig, cur_pos, cur_prob):
         positions = []

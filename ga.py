@@ -13,17 +13,29 @@ def black_pawn_move_variants(pos):
     return positions
 
 
-def white_pawn_attack_variants(pos):
+def white_pawn_move_variants(pos):
     pos_num = pos2num(pos)
-    # positions = [num2pos(pos_num+8)]
-    positions = []
+    positions = [num2pos(pos_num + 8)]
     if pos_num % 8 > 0:
         positions += [num2pos(pos_num + 7)]
     if not pos_num % 8 == 7:
         positions += [num2pos(pos_num + 9)]
-    # if pos2num("a2") <= pos_num <= pos2num("h2"):
-    #     positions += [num2pos(pos_num+16)]
+    if pos2num("a2") <= pos_num <= pos2num("h2"):
+        positions += [num2pos(pos_num + 16)]
     return positions
+
+
+# def white_pawn_attack_variants(pos):
+#     pos_num = pos2num(pos)
+#     # positions = [num2pos(pos_num+8)]
+#     positions = []
+#     if pos_num % 8 > 0:
+#         positions += [num2pos(pos_num + 7)]
+#     if not pos_num % 8 == 7:
+#         positions += [num2pos(pos_num + 9)]
+#     # if pos2num("a2") <= pos_num <= pos2num("h2"):
+#     #     positions += [num2pos(pos_num+16)]
+#     return positions
 
 
 def rook_move_variants(pos):
