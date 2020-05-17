@@ -1,7 +1,6 @@
 from board import Board
 from utils import *
 import numpy as np
-from game import Game
 import ga
 
 
@@ -122,19 +121,19 @@ def chain_score(color, board):
     return isolated_pawns + dual_pawns + behind_pawns + last_line_pawns
 
 
-def move_count(fig, game):
+def move_count(board, color, fig):
     move_count = 0
-    for pos in game.board.chess[fig]:
+    for pos in board.chess[color + fig]:
         moves = []
-        if fig[1] == "q":
-            moves += game.filter_queen_move(pos, ga.queen_move_variants(pos))
-        elif fig[1] == "r":
-            moves += game.filter_rook_move(pos, ga.rook_move_variants(pos))
-        elif fig[1] == "b":
-            moves += game.filter_bishop_move(pos, ga.bishop_move_variants(pos))
-        elif fig[1] == "n":
-            moves += game.filter_knight_move(ga.knight_move_variants(pos))
-        move_count += sum([0 if game.test_check(fig, pos, move) else 1 for move in moves])
+        if fig == "q":
+            moves += ga.filter_queen_move(board, color, pos, ga.queen_move_variants(pos))
+        elif fig == "r":
+            moves += ga.filter_rook_move(board, color, pos, ga.rook_move_variants(pos))
+        elif fig == "b":
+            moves += ga.filter_bishop_move(board, color, pos, ga.bishop_move_variants(pos))
+        elif fig == "n":
+            moves += ga.filter_knight_move(board, color, ga.knight_move_variants(pos))
+        move_count += sum([0 if ga.test_check(board, color, color + fig, pos, move) else 1 for move in moves])
     return move_count
 
 
@@ -151,9 +150,7 @@ def check_pawns_score(color, board):
 
 
 def active_fig_score(color, board):
-    game = Game(None)
-    game.board = board
-    return sum([move_count(color + fig, game) for fig in ["q", "r", "b", "n"]]) * 0.1
+    return sum([move_count(board, color, fig) for fig in ["q", "r", "b", "n"]]) * 0.1
 
 
 def total_score(board):

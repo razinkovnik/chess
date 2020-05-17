@@ -1,15 +1,8 @@
-from functools import reduce
-
-from PIL import Image, ImageDraw
-import matplotlib.pyplot as plt
 from utils import *
-import numpy as np
 
 
 class Board:
     def __init__(self):
-        self.board = None
-        self.w = 109
         self.chess = {
             "wp": ["a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2"],
             "wr": ["a1", "h1"],
@@ -24,44 +17,11 @@ class Board:
             "bq": ["d8"],
             "bk": ["e8"],
         }
-        self.figs = {}
-        for fig in self.chess.keys():
-            self.figs[fig] = Image.open(f'{root_folder}/{fig}.png', 'r').convert('RGBA')
 
     def clone(self):
         board = Board()
         board.from_state(self.to_vector())
         return board
-
-    def __setup_board(self):
-        w = self.w
-        board = Image.new('RGBA', (w * 8, w * 8))
-        d = ImageDraw.Draw(board)
-        black_color = "#769656"
-        white_color = "#eeeed2"
-
-        for j in range(1, 9):
-            for i in range(1, 9):
-                shape = [(w * (i - 1), w * (j - 1)), (w * i, w * j)]
-                color = white_color if (i + j) % 2 == 0 else black_color
-                d.rectangle(shape, fill=color)
-        return board
-
-    def __paste_fig2pos(self, fig, pos):
-        x, y = "abcdefgh".index(pos[0]), 8 - int(pos[1])
-        self.board.paste(self.figs[fig], (self.w * x, self.w * y), mask=self.figs[fig])
-
-    def show(self):
-        self.board = self.__setup_board()
-        for fig in self.chess.keys():
-            for pos in self.chess[fig]:
-                self.__paste_fig2pos(fig, pos)
-        fig, ax = plt.subplots()
-        ax.imshow(np.asarray(self.board))
-        ax.set_title("ход")
-        fig.set_figwidth(7)  # ширина и
-        fig.set_figheight(7)  # высота "Figure"
-        plt.show()
 
     def remove(self, pos):
         for fig, positions in self.chess.items():
@@ -203,7 +163,7 @@ class Board:
         chess = self.chess.items()
         if ignore_color:
             chess = [el for el in chess if not el[0][0] == ignore_color]
-        return pos not in reduce(lambda a, b: a + b, [a for _, a in chess])
+        return pos not in [pos for _, positions in chess for pos in positions]
 
     def to_vector(self):
         return self.__f("p") + self.__f("r") + self.__f("n") + self.__f("b") + self.__f("q") + self.__f("k")
