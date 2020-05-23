@@ -9,12 +9,15 @@ from board import Board
 from utils import translate_notation
 
 
+# noinspection PyTypeChecker
 class ChessCom:
     def __init__(self):
         self.driver = ChessCom.__init_driver()
         self.driver.get("https://www.chess.com/play/computer")
         self.driver.implicitly_wait(1)
         self.board = Board()
+        self.can_castling = True, True
+        self.last_step: Notation = None
 
     @staticmethod
     def __init_driver():
@@ -43,7 +46,9 @@ class ChessCom:
             self.__go(step_num % 2, move)
 
     def __go(self, color, move):
-        return self.board.play(Notation(self.board, color, move))
+        notation = Notation(self.board, color, move)
+        self.last_step = notation
+        return self.board.play(notation)
 
     def __cell(self, pos):
         board_img = self.driver.find_element_by_id("chessboard_boardarea")
